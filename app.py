@@ -8,13 +8,12 @@ import torchvision.transforms as transforms
 from PIL import Image
 from torchvision import models
 import mediapipe as mp
-from time import time
+from time import time,sleep
 
 class_labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
 num_classes = len(class_labels)
 
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.5)
+hands = mp.solutions.hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.5)
 mp_drawing = mp.solutions.drawing_utils
 
 # Load your trained model's weights
@@ -132,7 +131,7 @@ while True:
         if sentence[-1] != ' ':
             sentence += ' '
 
-    key = cv2.waitKey(100)  # asyncio
+    # key = cv2.waitKey(100)  # asyncio
     # Break loop on pressing 'q'
     try:
         if key == ord('q'):
@@ -140,9 +139,10 @@ while True:
         if key == 8:
             if len(sentence) > 0:
                 sentence = sentence[:-1]
-                if sentence == '':
-                    sentence += ' '
-                    cv2.putText(frame, sentence, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 3)
+				
+			if sentence == '':
+				sentence += ' '
+				cv2.putText(frame, sentence, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 3)
         if key == 32:
             sentence += ' '
             cv2.putText(frame, sentence, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 3)
@@ -154,7 +154,8 @@ while True:
     cv2.imshow('ASL Detection', frame)
     cv2.setWindowProperty('ASL Detection', cv2.WND_PROP_TOPMOST, 1)
     end_time = time()
-    # sleep(0.5 - (end_time - start_time))
+	if 0.5 - (end_time - start_time) > 0 :
+    	sleep(0.5 - (end_time - start_time))
 
 # Release the capture and close windows
 video_capture.release()
