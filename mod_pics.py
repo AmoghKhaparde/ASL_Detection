@@ -1,70 +1,53 @@
-import cv2
 import os
-import torch
-from torchvision import transforms
-import numpy as np
+from torchvision import transforms, utils
+from torch.utils.data import DataLoader
+from torchvision.datasets import ImageFolder
 import matplotlib.pyplot as plt
 
-def transform(image):
-    # Resize the whole image to 224 by 224
-    image = cv2.resize(image, (224, 224))
-    
-    # Random Rotation
-    angle = np.random.uniform(-15, 15)
-    rows, cols, _ = image.shape
-    M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
-    image = cv2.warpAffine(image, M, (cols, rows))
+# Define the image transformations
+transform = transforms.Compose([
+    transforms.RandomRotation(degrees=20),
+    transforms.ColorJitter(contrast=(0.6, 1.4), brightness=(0.6, 1.4)),
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()
+])
 
-    # Color Jitter (Contrast and Brightness)
-    # alpha = np.random.uniform(1, 10)  # Contrast factor
-    # beta = np.random.uniform(-10, 20)    # Brightness factor
-    # image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+# Specify the path to your dataset
+data_dir = 'pre_cropped_training_pics/'
 
-    # Random Resized Crop
-    scale = np.random.uniform(0.5, 1.0)  # Scale factor
-    resized_rows, resized_cols = int(rows * scale), int(cols * scale)
-    image = cv2.resize(image, (resized_cols, resized_rows))
-    
-    x_start = np.random.randint(0, cols - 210)
-    y_start = np.random.randint(0, rows - 210)
-    image = image[y_start:y_start+210, x_start:x_start+210]
+# Create a dataset using ImageFolder
+dataset = ImageFolder(root=data_dir, transform=transform)
 
-    return image
+# Create a DataLoader for batch processing
+batch_size = 1  # Set batch size to the number of images to generate together
+data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
+# Specify the path to save augmented images
+save_path = 'new_data/'
 
-num_augmentations = 10
+# Iterate through the data loader and save augmented images
+for i, (images, labels) in enumerate(data_loader):
+    # Generate augmented images for each image in the batch
+    augmented_images = []
 
-for alphabet in 'abcdefgh' :
-    
-    folder_path = "new_data/" # Replace with the path to the parent folder where you want to create the new folder
-    # Join the parent folder path and the new folder name to get the full path
-    new_folder_path = os.path.join(folder_path, alphabet)
-    # Use the os.makedirs() function to create the folder
-    os.makedirs(new_folder_path)
+    # Convert tensor to PIL Image and ensure RGB mode
+    image = transforms.ToPILImage()(images[0].cpu())
 
-    for num in range(1, len(os.listdir('pre_cropped_training_pics/'+alphabet+'/'))+1) :
-        try:
-            # Path to your input JPEG image
-            image_path = 'pre_cropped_training_pics/'+alphabet+'/Photo-'+str(num)+'.jpeg'
+    for j in range(5):
+        # Apply augmentations and save the image
+        augmented_image = transform(image)
+        augmented_image = (transforms.ToPILImage()(augmented_image.cpu()))
+        class_folder = os.path.join(save_path, dataset.classes[labels[0]])
+        os.makedirs(class_folder, exist_ok=True)
+        image_path = os.path.join(class_folder, f'image_{i}_{j}.jpeg')
+        augmented_image.save(image_path)
+        print(f'Saved: {image_path}')
 
-            # Load the input image
-            image = cv2.imread(image_path)
+    # Display the augmented images in a grid
+    grid_image = utils.make_grid(images, nrow=batch_size, normalize=True)
+    plt.imshow(grid_image.permute(1, 2, 0))  # Change the order of dimensions for matplotlib
+    plt.title(f'Class: {dataset.classes[labels[0]]}')
+    plt.pause(0.001)  # Pause for 1 millisecond
+    plt.clf()  # Clear the current figure
 
-            # Convert the image to RGB format
-            cv2.imshow('frame1', image)
-
-        
-            for i in range(num_augmentations):
-                augmented_image = transform(image)
-                # augmented_image = (np.array(augmented_image) * 255).astype(np.uint8)  # Convert to NumPy array
-
-                cv2.imshow('frame', augmented_image)
-                cv2.waitKey(1)  # Add a delay to see the image (0 means wait indefinitely)
-
-                # Save augmented image
-                base_filename, ext = os.path.splitext(os.path.basename(image_path))
-                output_filename = f"{base_filename}_aug_{i}{ext}"
-                output_path = os.path.join("new_data/"+alphabet+"/", output_filename)
-                cv2.imwrite(output_path, augmented_image)
-        except :
-            continue
+print('Image augmentation and saving complete.')
