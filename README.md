@@ -4,3 +4,6 @@ To run this application, run app.py using either asl_model55.pth weights (for th
 
 For some reason, some of the data has been ommited from the display here on the github site, however, all of them are still in the github server (Apparently there is a limit of 1000 files for display whereas my folders have around 1700 per file in some cases)
 These truncated folders include "cropped_training_pics/", and "new_data"
+To find these files, clone the repository. 
+For example enter this into your command prompt: git clone https://github.com/AmoghKhaparde/ASL_Detection.git
+This will load the images on your computer, and you will be able to see all the files.
