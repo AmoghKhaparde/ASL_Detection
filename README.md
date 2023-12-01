@@ -6,4 +6,5 @@ For some reason, some of the data has been ommited from the display here on the 
 These truncated folders include "cropped_training_pics/", and "new_data"
 To find these files, clone the repository. 
 For example enter this into your command prompt: git clone https://github.com/AmoghKhaparde/ASL_Detection.git
+
 This will load the images on your computer, and you will be able to see all the files.
