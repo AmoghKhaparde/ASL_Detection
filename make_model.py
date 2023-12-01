@@ -26,15 +26,15 @@ transform_test = transforms.Compose([
 ])
 
 # Load ASL training dataset
-train_dataset = datasets.ImageFolder(root='new_data/', transform=transform_train)
+train_dataset = datasets.ImageFolder(root='cropped_training_pics/', transform=transform_train)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True)
 
 # Load ASL test dataset (you need to provide the path to your test data)
-test_dataset = datasets.ImageFolder(root='pre_cropped_testing_pics/', transform=transform_test)
+test_dataset = datasets.ImageFolder(root='cropped_testing_pics/', transform=transform_test)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=64, shuffle=False)  # No need to shuffle for testing
 
 # Load pre-trained ResNet-18 model
-model = models.resnet18(pretrained=True)
+model = models.resnet18(weights="ResNet18_Weights.IMAGENET1K_V1")
 num_features = model.fc.in_features
 
 # Modify classifier for ASL characters
@@ -116,6 +116,10 @@ for epoch in range(num_epochs):
 
 # Calculate and display confusion matrix
 conf_mat = confusion_matrix(all_true_labels, all_predicted_labels, labels=np.arange(num_classes))
+
+# Floor divide all values in the confusion matrix by 20
+conf_mat //= 20
+
 plt.figure(figsize=(10, 8))
 sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes)
 plt.xlabel('Predicted')
@@ -145,4 +149,4 @@ plt.tight_layout()
 plt.show()
 
 # Save the model's state_dict
-torch.save(model.state_dict(), 'data/asl_model53.pth')
+torch.save(model.state_dict(), 'data/asl_model56.pth')
