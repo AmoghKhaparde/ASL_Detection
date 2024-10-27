@@ -8,3 +8,5 @@ To find these files, clone the repository.
 For example enter this into your command prompt: git clone https://github.com/AmoghKhaparde/ASL_Detection.git
 
 This will load the images on your computer, and you will be able to see all the files.
+
+Presenation with demos: https://docs.google.com/presentation/d/1wU_2ZzUNdjg9sa-rcPK9bnLzhIQbd1NgX9MY1PSKIys/present?slide=id.p2 
